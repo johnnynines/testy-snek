@@ -318,7 +318,7 @@ class Dashboard:
 
         <div class="row">
             <div class="col-md-4">
-                <div class="card">
+                <div class="card mb-4">
                     <div class="card-header bg-primary text-white">
                         Test Reports
                     </div>
@@ -330,6 +330,20 @@ class Dashboard:
                                 </div>
                                 <p class="mt-2">Loading reports...</p>
                             </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card mb-4">
+                    <div class="card-header bg-info text-white">
+                        Historical Trends
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="trendChart"></canvas>
+                        </div>
+                        <div id="noTrendData" class="text-center p-3" style="display: none;">
+                            <p>Need more test runs to show trends</p>
                         </div>
                     </div>
                 </div>
@@ -389,6 +403,11 @@ class Dashboard:
                     }
                     
                     reportsList.innerHTML = '';
+                    
+                    // Generate trend data for historical view
+                    if (reports.length > 1) {
+                        createHistoricalTrendChart(reports);
+                    }
                     
                     reports.forEach(report => {
                         const passRate = report.total_tests > 0 
@@ -754,6 +773,144 @@ class Dashboard:
                 });
         }
 
+        // Create historical trend chart from multiple test reports
+        function createHistoricalTrendChart(reports) {
+            if (reports.length < 2) {
+                document.getElementById('noTrendData').style.display = 'block';
+                return;
+            }
+            
+            // Sort reports by timestamp (oldest first)
+            reports = reports.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+            
+            // Extract data for the chart
+            const labels = reports.map(report => {
+                const date = new Date(report.timestamp);
+                return date.toLocaleDateString();
+            });
+            
+            const passRates = reports.map(report => {
+                if (report.total_tests === 0) return 0;
+                return (report.passed / report.total_tests) * 100;
+            });
+            
+            const passedCounts = reports.map(report => report.passed);
+            const failedCounts = reports.map(report => report.failed);
+            const skippedCounts = reports.map(report => report.skipped);
+            
+            // Create the chart
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Pass Rate (%)',
+                            data: passRates,
+                            borderColor: 'rgba(40, 167, 69, 0.8)',
+                            backgroundColor: 'rgba(40, 167, 69, 0.2)',
+                            borderWidth: 2,
+                            yAxisID: 'y',
+                            tension: 0.1
+                        },
+                        {
+                            label: 'Passed',
+                            data: passedCounts,
+                            borderColor: 'rgba(40, 167, 69, 0.8)',
+                            backgroundColor: 'transparent',
+                            borderDashed: [5, 5],
+                            borderWidth: 1,
+                            yAxisID: 'y1',
+                            tension: 0.1
+                        },
+                        {
+                            label: 'Failed',
+                            data: failedCounts,
+                            borderColor: 'rgba(220, 53, 69, 0.8)',
+                            backgroundColor: 'transparent',
+                            borderDashed: [5, 5],
+                            borderWidth: 1,
+                            yAxisID: 'y1',
+                            tension: 0.1
+                        },
+                        {
+                            label: 'Skipped',
+                            data: skippedCounts,
+                            borderColor: 'rgba(108, 117, 125, 0.8)',
+                            backgroundColor: 'transparent',
+                            borderDashed: [5, 5],
+                            borderWidth: 1,
+                            yAxisID: 'y1',
+                            tension: 0.1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    stacked: false,
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Pass Rate (%)',
+                                color: 'rgb(200, 200, 200)'
+                            },
+                            min: 0,
+                            max: 100,
+                            ticks: {
+                                color: 'rgb(200, 200, 200)'
+                            },
+                            grid: {
+                                color: 'rgba(200, 200, 200, 0.1)'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'Test Count',
+                                color: 'rgb(200, 200, 200)'
+                            },
+                            min: 0,
+                            ticks: {
+                                color: 'rgb(200, 200, 200)'
+                            },
+                            grid: {
+                                color: 'rgba(200, 200, 200, 0.1)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: 'rgb(200, 200, 200)'
+                            },
+                            grid: {
+                                color: 'rgba(200, 200, 200, 0.1)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'rgb(200, 200, 200)'
+                            }
+                        }
+                    }
+                }
+            });
+            
+            document.getElementById('noTrendData').style.display = 'none';
+        }
+        
         // Toggle test details visibility
         function toggleTestDetails(index) {
             const detailsElement = document.getElementById(`test-details-${index}`);

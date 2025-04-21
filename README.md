@@ -187,6 +187,8 @@ desktop-test dashboard --data-dir ./my-test-reports
 - **Data Visualization**: Interactive charts and graphs for test results analysis
 - **Performance Metrics**: Visual representation of test execution times
 - **Pass Rate Visualization**: Doughnut charts showing test status distribution
+- **Historical Trends**: Line charts showing test results over time
+- **Dual-Axis Charts**: View both pass rates and test counts on a single chart
 - **Real-time Updates**: Automatic updating of dashboard when new tests are run
 
 ### Programmatic Usage
