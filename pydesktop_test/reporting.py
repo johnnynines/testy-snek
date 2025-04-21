@@ -241,6 +241,206 @@ class TestReportGenerator:
             print("===================\n")
 
 
+class TestReport:
+    """
+    Collects and manages test report data for visualization.
+    
+    This class provides methods for collecting test result data during test runs
+    and saving it in a format suitable for the dashboard visualization.
+    """
+    
+    def __init__(self, report_id: Optional[str] = None):
+        """
+        Initialize a new test report.
+        
+        Args:
+            report_id: Optional ID for the report (defaults to timestamp)
+        """
+        self.id = report_id or datetime.now().strftime("test_%Y%m%d_%H%M%S")
+        self.timestamp = datetime.now().isoformat()
+        self.start_time = time.time()
+        self.end_time = None
+        self.duration = 0
+        self.summary = {
+            "total": 0,
+            "passed": 0,
+            "failed": 0,
+            "skipped": 0,
+            "error": 0
+        }
+        self.test_cases = []
+        self.screenshots = []
+        self.logs = ""
+        
+    def start(self) -> None:
+        """Start the test run timer."""
+        self.start_time = time.time()
+        
+    def finish(self) -> None:
+        """Finish the test run and calculate duration."""
+        self.end_time = time.time()
+        self.duration = self.end_time - self.start_time
+        
+    def add_test_case(self, test_data: Dict[str, Any]) -> None:
+        """
+        Add a test case to the report.
+        
+        Args:
+            test_data: Dictionary with test case data
+        """
+        self.test_cases.append(test_data)
+        
+        # Update summary statistics
+        self.summary["total"] += 1
+        status = test_data.get("status")
+        if status == "passed":
+            self.summary["passed"] += 1
+        elif status == "failed":
+            self.summary["failed"] += 1
+        elif status == "skipped":
+            self.summary["skipped"] += 1
+        elif status == "error":
+            self.summary["error"] += 1
+    
+    def add_screenshot(self, screenshot_path: str) -> None:
+        """
+        Add a screenshot to the report.
+        
+        Args:
+            screenshot_path: Path to the screenshot file
+        """
+        if screenshot_path not in self.screenshots:
+            self.screenshots.append(screenshot_path)
+    
+    def add_log(self, log_text: str) -> None:
+        """
+        Add log text to the report.
+        
+        Args:
+            log_text: Log text to add
+        """
+        self.logs += log_text + "\n"
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """
+        Convert the report to a dictionary.
+        
+        Returns:
+            Dictionary representation of the report
+        """
+        return {
+            "id": self.id,
+            "timestamp": self.timestamp,
+            "duration": self.duration,
+            "summary": self.summary,
+            "test_cases": self.test_cases,
+            "screenshots": self.screenshots,
+            "logs": self.logs
+        }
+    
+    def save(self, output_dir: Optional[str] = None) -> str:
+        """
+        Save the report to a JSON file.
+        
+        Args:
+            output_dir: Optional directory to save the report in
+            
+        Returns:
+            Path to the saved report file
+        """
+        if not output_dir:
+            output_dir = os.path.join(os.getcwd(), "test_reports")
+        
+        # Ensure the output directory exists
+        os.makedirs(output_dir, exist_ok=True)
+        
+        # Finalize the report if not already done
+        if self.end_time is None:
+            self.finish()
+        
+        # Create the output file path
+        output_path = os.path.join(output_dir, f"{self.id}.json")
+        
+        # Save the report
+        with open(output_path, "w") as f:
+            json.dump(self.to_dict(), f, indent=2)
+        
+        return output_path
+    
+    @classmethod
+    def from_pytest_session(cls, session) -> 'TestReport':
+        """
+        Create a TestReport from a pytest session.
+        
+        Args:
+            session: pytest test session
+            
+        Returns:
+            TestReport populated with session data
+        """
+        report = cls()
+        report.start()
+        
+        # Process each test item
+        for item in session.items:
+            # This gets more complete data after tests run
+            pass
+        
+        return report
+    
+    @classmethod
+    def from_pytest_terminal_summary(cls, terminalreporter) -> 'TestReport':
+        """
+        Create a TestReport from pytest's terminal reporter.
+        
+        Args:
+            terminalreporter: pytest's terminal reporter
+            
+        Returns:
+            TestReport populated with session result data
+        """
+        report = cls()
+        
+        # Get stats from terminal reporter
+        stats = terminalreporter.stats
+        
+        # Update summary
+        report.summary["passed"] = len(stats.get("passed", []))
+        report.summary["failed"] = len(stats.get("failed", []))
+        report.summary["skipped"] = len(stats.get("skipped", []))
+        report.summary["error"] = len(stats.get("error", []))
+        report.summary["total"] = (
+            report.summary["passed"] + 
+            report.summary["failed"] + 
+            report.summary["skipped"] + 
+            report.summary["error"]
+        )
+        
+        # Calculate duration
+        report.duration = time.time() - report.start_time
+        
+        # Process test results
+        for status in ["passed", "failed", "skipped", "error"]:
+            for test_report in stats.get(status, []):
+                test_case = {
+                    "name": test_report.nodeid.split("::")[-1],
+                    "nodeid": test_report.nodeid,
+                    "status": status,
+                    "duration": getattr(test_report, "duration", 0),
+                    "call": None
+                }
+                
+                # Add detailed information for failures
+                if status == "failed" and hasattr(test_report, "longrepr"):
+                    test_case["call"] = {
+                        "longrepr": str(test_report.longrepr)
+                    }
+                
+                report.test_cases.append(test_case)
+        
+        return report
+
+
 def parse_junit_xml(xml_path: str) -> Dict[str, Any]:
     """
     Parse JUnit XML file to extract test results.

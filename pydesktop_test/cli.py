@@ -26,6 +26,7 @@ except ImportError:
 from .core import run_tests, collect_tests
 from .config import TestConfig
 from .reporting import TestReportGenerator
+from .dashboard import launch_dashboard
 
 
 def main_cli():
@@ -166,6 +167,49 @@ def _typer_cli():
         if not success:
             raise typer.Exit(code=1)
     
+    @app.command("dashboard")
+    def dashboard_cmd(
+        data_dir: str = typer.Option(
+            "test_reports",
+            "--data-dir", "-d",
+            help="Directory containing test reports"
+        ),
+        port: int = typer.Option(
+            5500,
+            "--port", "-p",
+            help="Port to run dashboard on"
+        ),
+        open_browser: bool = typer.Option(
+            True,
+            "--open/--no-open",
+            help="Automatically open browser"
+        )
+    ):
+        """Launch the interactive test dashboard"""
+        console.print(Panel.fit(
+            "Launching interactive dashboard",
+            title="PyDesktop Test Dashboard"
+        ))
+        
+        # Launch the dashboard
+        dashboard = launch_dashboard(
+            port=port,
+            data_dir=data_dir,
+            open_browser=open_browser
+        )
+        
+        # Show info
+        console.print(f"[green]Dashboard running at:[/green] [bold blue]http://localhost:{port}[/bold blue]")
+        console.print(f"[green]Loading reports from:[/green] [yellow]{data_dir}[/yellow]")
+        console.print("\nPress Ctrl+C to stop the dashboard")
+        
+        # Keep the process running until interrupted
+        try:
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            console.print("\n[yellow]Dashboard stopped[/yellow]")
+    
     @app.command("list")
     def list_cmd(
         test_paths: List[str] = typer.Argument(
@@ -262,6 +306,12 @@ def _argparse_cli():
     run_parser.add_argument("--parallel", "-p", action="store_true", help="Run tests in parallel")
     run_parser.add_argument("--workers", "-w", type=int, help="Number of parallel workers")
     run_parser.add_argument("--config", "-c", help="Path to configuration file")
+    
+    # Dashboard command
+    dashboard_parser = subparsers.add_parser("dashboard", help="Launch the interactive test dashboard")
+    dashboard_parser.add_argument("--data-dir", "-d", default="test_reports", help="Directory containing test reports")
+    dashboard_parser.add_argument("--port", "-p", type=int, default=5500, help="Port to run dashboard on")
+    dashboard_parser.add_argument("--no-open", action="store_true", help="Don't automatically open browser")
     
     # List command
     list_parser = subparsers.add_parser("list", help="List available tests")

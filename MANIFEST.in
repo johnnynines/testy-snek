@@ -1,0 +1,11 @@
+include README.md
+include LICENSE
+include MANIFEST.in
+include pyproject.toml
+include desktop-test
+
+recursive-include pydesktop_test *.py
+recursive-include examples *.py
+recursive-include tests *.py
+
+global-exclude *.py[cod] __pycache__ *.so .DS_Store

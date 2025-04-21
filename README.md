@@ -1,96 +1,90 @@
-# Desktop Test
+# PyDesktop Test
 
-A standalone desktop testing suite for Python GUI applications based on PyTest. This tool runs locally on your computer to test desktop applications before deployment.
+A comprehensive PyTest-based testing framework for Python desktop applications with enhanced reporting and developer experience.
+
+![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)
+![Python](https://img.shields.io/badge/python-3.7%2B-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
 
 ## Overview
 
-Desktop Test provides a user-friendly way to run tests against desktop applications built with Python GUI frameworks (Tkinter, PyQt, etc.). No installation required - just download and run!
+PyDesktop Test simplifies the process of testing Python desktop applications by providing specialized fixtures, assertions, and tools designed specifically for GUI testing. The framework extends PyTest with desktop-specific capabilities, making it easier to write reliable tests for desktop applications.
 
-## Features
+Key features:
+- 🧪 **Auto-Test Generation**: Automatically analyze your desktop application and generate tests
+- 🧩 **Custom Assertions**: GUI-specific assertions for testing UI components and interactions
+- 📊 **Enhanced Reporting**: Detailed HTML reports with screenshots and test results
+- 🔧 **Configurable**: Extensive configuration options for different testing environments
+- 🔍 **Framework Support**: Works with multiple GUI frameworks (Tkinter, PyQt, etc.)
+- 📷 **Screenshot Capture**: Visual testing and debugging with automatic screenshots
 
-- **Desktop Testing**: Run tests directly on your local machine
-- **Cross-Platform**: Works on Windows, macOS, and Linux
-- **GUI Framework Support**: Test applications built with Tkinter, PyQt, wxPython, etc.
-- **Screenshot Testing**: Capture screenshots for visual comparison
-- **Custom Assertions**: Verify window states, control properties, and UI behaviors
-- **HTML Reports**: Generate detailed test reports with screenshots
-- **Code Coverage**: Track which parts of your application are covered by tests
-- **Automatic Test Generation**: Analyze your projects and automatically generate tests
+## Installation
 
-## Requirements
+### Prerequisites
 
-- Python 3.6 or higher
-- PyTest (will be checked and a warning displayed if not installed)
-- GUI library corresponding to your application (e.g., Tkinter, PyQt)
+- Python 3.7 or higher
+- pip (Python package installer)
 
-## Getting Started
-
-1. Download this repository to your computer
-2. Navigate to the repository directory in your terminal
-3. Run the executable script:
+### Install from PyPI
 
 ```bash
-# On Linux/macOS
-./desktop-test run
-
-# On Windows
-python desktop-test run
+pip install pydesktop-test
 ```
 
-## Automatic Test Generation
-
-One of the most powerful features of Desktop Test is its ability to automatically analyze your Python desktop application and generate tests:
+### Install from Source
 
 ```bash
-# Analyze a project and generate tests
-./desktop-test autogen /path/to/your/project
-
-# Specify custom output directory for tests
-./desktop-test autogen /path/to/your/project --output /path/to/output
-
-# Just analyze the project without generating tests
-./desktop-test autogen /path/to/your/project --analyze-only
+git clone https://github.com/yourusername/pydesktop-test.git
+cd pydesktop-test
+pip install -e .
 ```
 
-The auto-generation feature:
+## Quick Start
 
-1. Analyzes your project structure
-2. Detects GUI framework (Tkinter, PyQt, etc.)
-3. Identifies UI elements (buttons, entries, etc.)
-4. Creates appropriate test fixtures
-5. Generates test cases for UI components
-6. Creates basic tests for application logic
+### Basic Usage
 
-### How Auto-Generation Works
+1. Install the package
+2. Create test files in your project's test directory
+3. Run tests using the `desktop-test` command
 
-The automatic test generator analyzes your code using Python's AST (Abstract Syntax Tree) to identify:
+```bash
+# Run all tests
+desktop-test run
 
-- Application classes and their inheritance hierarchy
-- UI elements created in your code
-- Methods that can be tested
-- Event handlers and callbacks
+# Run tests with specific options
+desktop-test run --verbose --html-report
+```
 
-Based on this analysis, it generates:
+### Auto-Test Generation
 
-1. A `conftest.py` file with fixtures for your application
-2. Test files for each major class in your application
-3. Test cases for UI elements that exercise their functionality
+PyDesktop Test can automatically analyze your desktop application and generate basic tests:
 
-## Writing Tests Manually
+```bash
+# Generate tests for a whole project
+desktop-test autogen /path/to/your/project
 
-Create a `tests` directory in your project and add test files. Here's a simple example for a Tkinter application:
+# Generate tests for a single file
+desktop-test autogen /path/to/your/app.py
+
+# Specify custom output directory
+desktop-test autogen /path/to/your/project --output /path/to/output
+```
+
+## Writing Tests
+
+### Basic Test Structure
 
 ```python
-# tests/test_my_app.py
 import pytest
-from myapp import MyApplication  # Your application
+from pydesktop_test.assertions import assert_window_exists, assert_control_exists
 
+# Test function with app_instance fixture
 def test_app_window_title(app_instance, main_window):
     # Test that the application window has the correct title
     assert main_window.title() == "My Application"
 
+# Testing a button click
 def test_button_click(app_instance):
-    # Test that clicking a button updates the counter
     # Get the button and counter label
     button = app_instance.button
     counter_label = app_instance.counter_label
@@ -105,56 +99,12 @@ def test_button_click(app_instance):
     assert int(counter_label["text"]) == initial_value + 1
 ```
 
-## Command-Line Options
+### Using Custom Assertions
 
-```bash
-# Run all tests
-./desktop-test run
-
-# Run specific test files or directories
-./desktop-test run tests/test_login.py
-
-# Generate HTML report
-./desktop-test run --html
-
-# Run tests in parallel for faster results
-./desktop-test run --parallel
-
-# List all available tests without running them
-./desktop-test list
-
-# Auto-generate tests
-./desktop-test autogen /path/to/your/project
-```
-
-## Configuration
-
-Create a `desktop_test.json` file in your project root for custom settings:
-
-```json
-{
-    "test_dir": "tests",
-    "report_dir": "test_reports",
-    "screenshot_dir": "screenshots",
-    "screenshot_on_failure": true,
-    "parallel": true,
-    "max_workers": 4
-}
-```
-
-## Example Projects
-
-See the `examples` directory for sample desktop applications with test suites:
-
-- `examples/tkinter_app`: A simple Tkinter note-taking application
-- `examples/pyqt_app`: A PyQt calculator application (requires PyQt installation)
-
-## Custom Assertions for UI Testing
-
-Desktop Test provides special assertion functions for UI testing:
+PyDesktop Test provides specialized assertions for UI testing:
 
 ```python
-from desktop_test.assertions import (
+from pydesktop_test.assertions import (
     assert_window_exists,
     assert_control_exists,
     assert_control_value,
@@ -162,14 +112,94 @@ from desktop_test.assertions import (
     assert_dialog_shown
 )
 
-def test_dialog_shown(app_instance):
-    # Click a button that shows a dialog
-    app_instance.show_dialog_button.invoke()
+def test_ui_components(app_instance):
+    # Verify window exists
+    window = assert_window_exists(app_instance, "My Application")
     
-    # Assert that a dialog with the given title is shown
-    dialog = assert_dialog_shown(app_instance, "Confirmation Dialog")
+    # Check a specific control exists
+    button = assert_control_exists(window, "submit_button")
     
-    # Check dialog content
-    ok_button = assert_control_exists(dialog, "ok_button")
-    assert_control_enabled(ok_button)
+    # Verify control value
+    assert_control_value(app_instance.entry, "Initial Text")
+    
+    # Check control is enabled
+    assert_control_enabled(button)
+    
+    # Test dialog appears
+    button.invoke()
+    dialog = assert_dialog_shown(app_instance, "Confirmation")
 ```
+
+## Configuration
+
+PyDesktop Test can be configured using a `pydesktop_test.yaml` file in your project root:
+
+```yaml
+# Example configuration
+test:
+  screenshot_dir: "test_screenshots"
+  html_report: true
+  parallel: true
+  
+application:
+  headless: true
+  startup_delay: 1.0
+  
+frameworks:
+  tkinter:
+    enabled: true
+  pyqt:
+    enabled: false
+```
+
+Or via the command line:
+
+```bash
+desktop-test run --screenshot-dir=test_screenshots --html-report --parallel
+```
+
+## API Reference
+
+### Main Components
+
+- **Fixtures**: Pre-configured test fixtures for desktop application testing
+- **Assertions**: Specialized assertions for testing UI states and behaviors
+- **Reporting**: Enhanced test reporting with screenshots and detailed logs
+- **CLI**: Command-line interface for running tests and generating reports
+- **AutoGen**: Automatic test generation for desktop applications
+
+### Key Modules
+
+- `pydesktop_test.assertions`: UI-specific assertion functions
+- `pydesktop_test.fixtures`: Test fixtures for desktop applications
+- `pydesktop_test.reporting`: Report generation and formatting
+- `pydesktop_test.cli`: Command-line interface tools
+- `pydesktop_test.config`: Configuration handling
+- `pydesktop_test.autogen`: Automatic test generation
+
+## Examples
+
+See the `examples` directory for complete examples with different UI frameworks:
+
+- `examples/demo_app.py`: A simple Tkinter application for demonstration
+- `examples/sample_app.py`: A more complex note-taking application
+- `examples/tests/`: Example test files for these applications
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgments
+
+- PyTest team for the excellent testing framework
+- Contributors to various GUI frameworks for Python
