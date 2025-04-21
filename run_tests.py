@@ -9,15 +9,19 @@ demonstrating the features of the PyDesktop Test framework.
 import os
 import sys
 import pytest
+import argparse
 from pathlib import Path
 
 
-def run_tests():
+def run_tests(launch_dashboard=False):
     """
     Run tests for the PyDesktop Test framework modules.
     
     This function focuses on testing the framework itself rather than the GUI examples
     which require Tkinter with display capabilities.
+    
+    Args:
+        launch_dashboard: Whether to launch the dashboard after running tests
     """
     # Ensure the package is in the Python path
     sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
@@ -25,6 +29,8 @@ def run_tests():
     print("Testing PyDesktop Test Framework...")
     
     # Create output directories
+    report_dir = "test_reports"
+    os.makedirs(report_dir, exist_ok=True)
     os.makedirs("example_reports", exist_ok=True)
     os.makedirs("example_coverage", exist_ok=True)
     
@@ -66,6 +72,8 @@ def test_config_set_get():
         "--cov=pydesktop_test",
         "--cov-report=html:example_coverage",
         "--cov-report=term",
+        "--dashboard",  # Enable the dashboard plugin
+        f"--report-dir={report_dir}",  # Set the report directory
         test_file  # Our test file
     ]
     
@@ -80,9 +88,38 @@ def test_config_set_get():
     print(f"Result: {'SUCCESS' if result == 0 else 'FAILURE'}")
     print("===================\n")
     
+    # Launch the dashboard if requested
+    if launch_dashboard:
+        try:
+            from pydesktop_test.dashboard import launch_dashboard
+            print("\nLaunching interactive dashboard...")
+            dashboard = launch_dashboard(data_dir=report_dir)
+            
+            # Keep the script running while the dashboard is active
+            try:
+                print("Dashboard is now running. Press Ctrl+C to exit.")
+                while True:
+                    import time
+                    time.sleep(1)
+            except KeyboardInterrupt:
+                print("\nDashboard stopped.")
+        except ImportError as e:
+            print(f"Error launching dashboard: {e}")
+            print("Make sure Flask is installed: pip install flask")
+    
     # Return success or failure
     return 0 if result == 0 else 1
 
 
 if __name__ == "__main__":
-    sys.exit(run_tests())
+    # Parse command line arguments
+    parser = argparse.ArgumentParser(description="Run PyDesktop Test framework tests")
+    parser.add_argument(
+        "--dashboard", "-d", 
+        action="store_true", 
+        help="Launch the interactive dashboard after running tests"
+    )
+    args = parser.parse_args()
+    
+    # Run tests with dashboard if requested
+    sys.exit(run_tests(launch_dashboard=args.dashboard))

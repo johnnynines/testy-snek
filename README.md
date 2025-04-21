@@ -14,6 +14,7 @@ Key features:
 - 🧪 **Auto-Test Generation**: Automatically analyze your desktop application and generate tests
 - 🧩 **Custom Assertions**: GUI-specific assertions for testing UI components and interactions
 - 📊 **Enhanced Reporting**: Detailed HTML reports with screenshots and test results
+- 📊 **Interactive Dashboard**: Web-based visualization of test results and metrics
 - 🔧 **Configurable**: Extensive configuration options for different testing environments
 - 🔍 **Framework Support**: Works with multiple GUI frameworks (Tkinter, PyQt, etc.)
 - 📷 **Screenshot Capture**: Visual testing and debugging with automatic screenshots
@@ -158,6 +159,45 @@ Or via the command line:
 desktop-test run --screenshot-dir=test_screenshots --html-report --parallel
 ```
 
+## Interactive Dashboard
+
+PyDesktop Test includes a web-based interactive dashboard for visualizing test results and metrics.
+
+### Launching the Dashboard
+
+```bash
+# Launch the dashboard with default settings
+desktop-test dashboard
+
+# Specify a custom port
+desktop-test dashboard --port 5555
+
+# Specify a custom reports directory
+desktop-test dashboard --data-dir ./my-test-reports
+```
+
+### Dashboard Features
+
+- **Test Summary**: Overview of test pass rates and metrics
+- **Test Reports**: List of all test runs with filtering and sorting
+- **Test Details**: Detailed information about specific test cases
+- **Screenshots**: Visual display of captured screenshots
+- **Error Reports**: Detailed error information for failed tests
+- **Interactive**: Run tests directly from the dashboard interface
+
+### Programmatic Usage
+
+```python
+from pydesktop_test import launch_dashboard
+
+# Launch the dashboard from your Python code
+dashboard = launch_dashboard(
+    port=5500,
+    data_dir="./test_reports",
+    open_browser=True
+)
+```
+
 ## API Reference
 
 ### Main Components
@@ -165,6 +205,7 @@ desktop-test run --screenshot-dir=test_screenshots --html-report --parallel
 - **Fixtures**: Pre-configured test fixtures for desktop application testing
 - **Assertions**: Specialized assertions for testing UI states and behaviors
 - **Reporting**: Enhanced test reporting with screenshots and detailed logs
+- **Dashboard**: Interactive visualization of test results and metrics
 - **CLI**: Command-line interface for running tests and generating reports
 - **AutoGen**: Automatic test generation for desktop applications
 
@@ -173,8 +214,10 @@ desktop-test run --screenshot-dir=test_screenshots --html-report --parallel
 - `pydesktop_test.assertions`: UI-specific assertion functions
 - `pydesktop_test.fixtures`: Test fixtures for desktop applications
 - `pydesktop_test.reporting`: Report generation and formatting
+- `pydesktop_test.dashboard`: Interactive dashboard for test visualization
 - `pydesktop_test.cli`: Command-line interface tools
 - `pydesktop_test.config`: Configuration handling
+- `pydesktop_test.plugins`: PyTest plugins for enhanced functionality
 - `pydesktop_test.autogen`: Automatic test generation
 
 ## Examples

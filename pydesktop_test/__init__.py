@@ -11,7 +11,6 @@ from .core import run_tests, collect_tests
 from .assertions import (
     assert_window_exists, 
     assert_control_exists,
-
     assert_control_value, 
     assert_control_enabled,
     assert_control_visible,
@@ -26,6 +25,9 @@ from .fixtures import (
     ui_screenshot,
     isolated_config
 )
+from .dashboard import launch_dashboard
+from .reporting import TestReport, TestReportGenerator
+from .plugins import DashboardPlugin
 
 __all__ = [
     # Core functionality
@@ -47,5 +49,11 @@ __all__ = [
     'temp_data',
     'mock_dialog',
     'ui_screenshot',
-    'isolated_config'
+    'isolated_config',
+    
+    # Dashboard and Reporting
+    'launch_dashboard',
+    'TestReport',
+    'TestReportGenerator',
+    'DashboardPlugin'
 ]
