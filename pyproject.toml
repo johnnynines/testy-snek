@@ -25,6 +25,7 @@ classifiers = [
 keywords = ["testing", "pytest", "desktop", "gui", "ui"]
 dependencies = [
     "flask>=3.0.3",
+    "openai>=1.75.0",
     "pillow>=10.4.0",
     "pytest>=6.0.0",
     "pytest-cov>=2.12.0",

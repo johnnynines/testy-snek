@@ -15,6 +15,7 @@ Desktop Test provides a user-friendly way to run tests against desktop applicati
 - **Custom Assertions**: Verify window states, control properties, and UI behaviors
 - **HTML Reports**: Generate detailed test reports with screenshots
 - **Code Coverage**: Track which parts of your application are covered by tests
+- **Automatic Test Generation**: Analyze your projects and automatically generate tests
 
 ## Requirements
 
@@ -36,7 +37,46 @@ Desktop Test provides a user-friendly way to run tests against desktop applicati
 python desktop-test run
 ```
 
-## Writing Tests
+## Automatic Test Generation
+
+One of the most powerful features of Desktop Test is its ability to automatically analyze your Python desktop application and generate tests:
+
+```bash
+# Analyze a project and generate tests
+./desktop-test autogen /path/to/your/project
+
+# Specify custom output directory for tests
+./desktop-test autogen /path/to/your/project --output /path/to/output
+
+# Just analyze the project without generating tests
+./desktop-test autogen /path/to/your/project --analyze-only
+```
+
+The auto-generation feature:
+
+1. Analyzes your project structure
+2. Detects GUI framework (Tkinter, PyQt, etc.)
+3. Identifies UI elements (buttons, entries, etc.)
+4. Creates appropriate test fixtures
+5. Generates test cases for UI components
+6. Creates basic tests for application logic
+
+### How Auto-Generation Works
+
+The automatic test generator analyzes your code using Python's AST (Abstract Syntax Tree) to identify:
+
+- Application classes and their inheritance hierarchy
+- UI elements created in your code
+- Methods that can be tested
+- Event handlers and callbacks
+
+Based on this analysis, it generates:
+
+1. A `conftest.py` file with fixtures for your application
+2. Test files for each major class in your application
+3. Test cases for UI elements that exercise their functionality
+
+## Writing Tests Manually
 
 Create a `tests` directory in your project and add test files. Here's a simple example for a Tkinter application:
 
@@ -82,6 +122,9 @@ def test_button_click(app_instance):
 
 # List all available tests without running them
 ./desktop-test list
+
+# Auto-generate tests
+./desktop-test autogen /path/to/your/project
 ```
 
 ## Configuration

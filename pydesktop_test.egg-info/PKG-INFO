@@ -19,6 +19,7 @@ Classifier: Topic :: Software Development :: Testing :: Unit
 Requires-Python: >=3.8
 Description-Content-Type: text/markdown
 Requires-Dist: flask>=3.0.3
+Requires-Dist: openai>=1.75.0
 Requires-Dist: pillow>=10.4.0
 Requires-Dist: pytest>=6.0.0
 Requires-Dist: pytest-cov>=2.12.0
@@ -37,45 +38,59 @@ Requires-Dist: typer>=0.4.0; extra == "cli"
 Provides-Extra: yaml
 Requires-Dist: pyyaml>=6.0; extra == "yaml"
 
-# PyDesktop Test
+# Desktop Test
 
-A PyTest-based testing framework for Python desktop applications with enhanced reporting and developer experience.
+A standalone desktop testing suite for Python GUI applications based on PyTest. This tool runs locally on your computer to test desktop applications before deployment.
+
+## Overview
+
+Desktop Test provides a user-friendly way to run tests against desktop applications built with Python GUI frameworks (Tkinter, PyQt, etc.). No installation required - just download and run!
 
 ## Features
 
-- **Easy Test Creation**: Simplifies writing tests for desktop applications
-- **Custom Assertions**: Built-in assertions for UI components and states
-- **Enhanced Reporting**: Rich console output and HTML reports
-- **Configurable**: Flexible configuration for different testing environments
-- **Test Discovery**: Automatic test discovery across project directories
-- **Parallel Execution**: Run tests in parallel for faster results
-- **Code Coverage**: Integrated coverage reporting
-- **Framework Support**: Compatible with multiple GUI frameworks (Tkinter, PyQt, etc.)
-- **Screenshot Testing**: Capture screenshots for visual regression testing
+- **Desktop Testing**: Run tests directly on your local machine
+- **Cross-Platform**: Works on Windows, macOS, and Linux
+- **GUI Framework Support**: Test applications built with Tkinter, PyQt, wxPython, etc.
+- **Screenshot Testing**: Capture screenshots for visual comparison
+- **Custom Assertions**: Verify window states, control properties, and UI behaviors
+- **HTML Reports**: Generate detailed test reports with screenshots
+- **Code Coverage**: Track which parts of your application are covered by tests
 
-## Installation
+## Requirements
+
+- Python 3.6 or higher
+- PyTest (will be checked and a warning displayed if not installed)
+- GUI library corresponding to your application (e.g., Tkinter, PyQt)
+
+## Getting Started
+
+1. Download this repository to your computer
+2. Navigate to the repository directory in your terminal
+3. Run the executable script:
 
 ```bash
-pip install pydesktop-test
+# On Linux/macOS
+./desktop-test run
+
+# On Windows
+python desktop-test run
 ```
 
-## Quick Start
+## Writing Tests
 
-Here's a simple example of how to use PyDesktop Test with a Tkinter application:
+Create a `tests` directory in your project and add test files. Here's a simple example for a Tkinter application:
 
 ```python
+# tests/test_my_app.py
 import pytest
-from myapp import MyTkinterApp  # Your application class
+from myapp import MyApplication  # Your application
 
-# Mark the test with the application class
-@pytest.mark.app_class(MyTkinterApp)
 def test_app_window_title(app_instance, main_window):
-    """Test that the application window has the correct title."""
+    # Test that the application window has the correct title
     assert main_window.title() == "My Application"
 
-@pytest.mark.app_class(MyTkinterApp)
 def test_button_click(app_instance):
-    """Test that clicking a button updates the counter."""
+    # Test that clicking a button updates the counter
     # Get the button and counter label
     button = app_instance.button
     counter_label = app_instance.counter_label
@@ -90,33 +105,53 @@ def test_button_click(app_instance):
     assert int(counter_label["text"]) == initial_value + 1
 ```
 
-## Running Tests
-
-You can run tests using the included command-line tool:
+## Command-Line Options
 
 ```bash
-# Run all tests in the current directory
-pydesktop-test run
+# Run all tests
+./desktop-test run
 
-# Run tests with HTML reporting
-pydesktop-test run --html
+# Run specific test files or directories
+./desktop-test run tests/test_login.py
 
-# Run tests in parallel
-pydesktop-test run --parallel
+# Generate HTML report
+./desktop-test run --html
+
+# Run tests in parallel for faster results
+./desktop-test run --parallel
+
+# List all available tests without running them
+./desktop-test list
 ```
 
-Or use pytest directly with the PyDesktop Test fixtures:
+## Configuration
 
-```bash
-pytest tests/ --cov=myapp
+Create a `desktop_test.json` file in your project root for custom settings:
+
+```json
+{
+    "test_dir": "tests",
+    "report_dir": "test_reports",
+    "screenshot_dir": "screenshots",
+    "screenshot_on_failure": true,
+    "parallel": true,
+    "max_workers": 4
+}
 ```
 
-## Custom Assertions
+## Example Projects
 
-PyDesktop Test provides specialized assertions for testing UI components:
+See the `examples` directory for sample desktop applications with test suites:
+
+- `examples/tkinter_app`: A simple Tkinter note-taking application
+- `examples/pyqt_app`: A PyQt calculator application (requires PyQt installation)
+
+## Custom Assertions for UI Testing
+
+Desktop Test provides special assertion functions for UI testing:
 
 ```python
-from pydesktop_test.assertions import (
+from desktop_test.assertions import (
     assert_window_exists,
     assert_control_exists,
     assert_control_value,
@@ -135,22 +170,3 @@ def test_dialog_shown(app_instance):
     ok_button = assert_control_exists(dialog, "ok_button")
     assert_control_enabled(ok_button)
 ```
-
-## Configuration
-
-Create a `pydesktop_test.json` file in your project root to configure the framework:
-
-```json
-{
-    "test_dir": "tests",
-    "report_dir": "test_reports",
-    "coverage_dir": "coverage",
-    "screenshot_on_failure": true,
-    "parallel": true,
-    "max_workers": 4
-}
-```
-
-## Documentation
-
-For more detailed documentation and examples, visit the [documentation site](https://pydesktop-test.readthedocs.io/).

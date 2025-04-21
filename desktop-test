@@ -3,7 +3,7 @@
 Desktop Test - A PyTest-based testing framework for Python desktop applications.
 
 This script provides a command-line interface for launching and running tests
-directly from a user's desktop environment.
+directly from a user's desktop environment, with auto-test generation capabilities.
 """
 
 import os
@@ -11,6 +11,14 @@ import sys
 import argparse
 import subprocess
 import pathlib
+import logging
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(levelname)s: %(message)s'
+)
+logger = logging.getLogger('desktop_test')
 
 # Make sure the pydesktop_test package is importable
 script_dir = pathlib.Path(__file__).parent.absolute()
@@ -18,10 +26,11 @@ sys.path.insert(0, str(script_dir))
 
 try:
     from pydesktop_test.cli import main_cli
-except ImportError:
-    print("Error: Could not import PyDesktop Test framework.")
-    print("Make sure the 'pydesktop_test' directory is in the same directory as this script.")
-    sys.exit(1)
+    from pydesktop_test.autogen import auto_generate_tests, analyze_project
+    HAS_AUTOGEN = True
+except ImportError as e:
+    print(f"Error importing modules: {e}")
+    HAS_AUTOGEN = False
 
 def check_environment():
     """Check if the necessary dependencies are installed."""
@@ -43,7 +52,7 @@ def check_environment():
         import tkinter
     except ImportError:
         print("Warning: tkinter is not installed. GUI testing will not be available.")
-        print("To enable GUI testing, install tkinter for your platform.")
+        print("To enable GUI testing, install tkinter for your platform:")
         print("  - On Ubuntu/Debian: sudo apt-get install python3-tk")
         print("  - On Fedora: sudo dnf install python3-tkinter")
         print("  - On macOS: brew install python-tk")
@@ -51,8 +60,109 @@ def check_environment():
     
     return True
 
-if __name__ == "__main__":
-    # Check if we have the necessary dependencies
-    if check_environment():
-        # Delegate to the CLI module
+def parse_args():
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(
+        description='Desktop Test - Testing tool for Python desktop applications'
+    )
+    
+    subparsers = parser.add_subparsers(dest='command', help='Command to run')
+    
+    # Run tests command
+    run_parser = subparsers.add_parser('run', help='Run tests')
+    run_parser.add_argument('test_path', nargs='?', default='tests',
+                         help='Path to test directory or file')
+    run_parser.add_argument('--html', action='store_true', 
+                         help='Generate HTML report')
+    run_parser.add_argument('--coverage', action='store_true',
+                         help='Generate coverage report')
+    run_parser.add_argument('--verbose', '-v', action='store_true',
+                         help='Verbose output')
+    
+    # Auto-generate tests command
+    if HAS_AUTOGEN:
+        autogen_parser = subparsers.add_parser('autogen', help='Auto-generate tests for a project')
+        autogen_parser.add_argument('project_path', help='Path to the project')
+        autogen_parser.add_argument('--output', '-o', help='Output directory for tests')
+        autogen_parser.add_argument('--verbose', '-v', action='store_true',
+                                 help='Verbose output')
+        autogen_parser.add_argument('--analyze-only', action='store_true',
+                                 help='Only analyze the project, don\'t generate tests')
+    
+    # List tests command
+    list_parser = subparsers.add_parser('list', help='List available tests')
+    list_parser.add_argument('test_path', nargs='?', default='tests',
+                          help='Path to test directory or file')
+    
+    return parser.parse_args()
+
+def handle_autogen(args):
+    """Handle the autogen command."""
+    if not HAS_AUTOGEN:
+        print("Error: Auto-generation module is not available.")
+        return 1
+    
+    # Set verbosity
+    if args.verbose:
+        logger.setLevel(logging.DEBUG)
+    
+    project_path = os.path.abspath(args.project_path)
+    if not os.path.exists(project_path):
+        print(f"Error: Project path {project_path} does not exist.")
+        return 1
+    
+    print(f"Analyzing project: {project_path}")
+    analysis_results = analyze_project(project_path)
+    
+    # Print analysis summary
+    print("\nProject Analysis Summary:")
+    print(f"  - GUI Framework: {analysis_results.get('gui_framework', 'None detected')}")
+    print(f"  - Modules: {len(analysis_results.get('modules', {}))}")
+    print(f"  - Classes: {len(analysis_results.get('classes', {}))}")
+    print(f"  - Functions: {len(analysis_results.get('functions', {}))}")
+    print(f"  - UI Elements: {len(analysis_results.get('ui_elements', {}))}")
+    
+    if args.analyze_only:
+        print("\nAnalysis complete. Use --analyze-only=false to generate tests.")
+        return 0
+    
+    # Determine output directory
+    if args.output:
+        output_dir = os.path.abspath(args.output)
+    else:
+        output_dir = os.path.join(project_path, 'tests')
+    
+    # Generate tests
+    print(f"\nGenerating tests to: {output_dir}")
+    test_files = auto_generate_tests(project_path, output_dir)
+    
+    # Print summary
+    print(f"\nGenerated {len(test_files)} test files:")
+    for path in test_files:
+        print(f"  - {os.path.basename(path)}")
+    
+    return 0
+
+def main():
+    """Main entry point."""
+    # Check environment
+    if not check_environment():
+        return 1
+    
+    # Parse arguments
+    args = parse_args()
+    
+    # Handle commands
+    if args.command == 'autogen' and HAS_AUTOGEN:
+        return handle_autogen(args)
+    elif args.command is None:
+        # No command specified, show help
+        parse_args(['--help'])
+        return 1
+    else:
+        # Delegate to the CLI module for other commands
         main_cli()
+        return 0
+
+if __name__ == "__main__":
+    sys.exit(main())
