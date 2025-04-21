@@ -212,25 +212,30 @@ class Dashboard:
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PyDesktop Test Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             padding-top: 20px;
-            background-color: #f5f5f5;
+            color: var(--bs-body-color);
+            background-color: var(--bs-body-bg);
         }
         .dashboard-header {
             margin-bottom: 30px;
         }
         .card {
             margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-color: var(--bs-border-color);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            background-color: var(--bs-tertiary-bg);
         }
         .test-details {
             margin-top: 20px;
         }
         .screenshot-container {
             margin: 10px 0;
-            border: 1px solid #ddd;
+            border: 1px solid var(--bs-border-color);
             padding: 10px;
             border-radius: 5px;
         }
@@ -247,12 +252,19 @@ class Dashboard:
             cursor: pointer;
             padding: 10px;
             border-radius: 5px;
+            border-left: 3px solid transparent;
+            transition: background-color 0.2s ease;
         }
         .test-item:hover {
-            background-color: #f8f9fa;
+            background-color: var(--bs-tertiary-bg);
+            border-left: 3px solid var(--bs-primary);
+        }
+        .test-item.active {
+            background-color: var(--bs-tertiary-bg);
+            border-left: 3px solid var(--bs-primary);
         }
         pre {
-            background-color: #f8f9fa;
+            background-color: var(--bs-tertiary-bg);
             padding: 15px;
             border-radius: 5px;
             overflow-x: auto;
@@ -260,6 +272,35 @@ class Dashboard:
         .log-container {
             max-height: 400px;
             overflow-y: auto;
+            background-color: var(--bs-tertiary-bg);
+            border-radius: 5px;
+            padding: 10px;
+        }
+        .chart-container {
+            position: relative;
+            height: 200px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .test-status-passed {
+            color: var(--bs-success);
+        }
+        .test-status-failed {
+            color: var(--bs-danger);
+        }
+        .test-status-skipped {
+            color: var(--bs-warning);
+        }
+        .test-summary-card {
+            text-align: center;
+        }
+        .test-summary-number {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        .dashboard-icon {
+            font-size: 1.2rem;
+            margin-right: 0.5rem;
         }
     </style>
 </head>
