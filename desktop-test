@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+"""
+Desktop Test - A PyTest-based testing framework for Python desktop applications.
+
+This script provides a command-line interface for launching and running tests
+directly from a user's desktop environment.
+"""
+
+import os
+import sys
+import argparse
+import subprocess
+import pathlib
+
+# Make sure the pydesktop_test package is importable
+script_dir = pathlib.Path(__file__).parent.absolute()
+sys.path.insert(0, str(script_dir))
+
+try:
+    from pydesktop_test.cli import main_cli
+except ImportError:
+    print("Error: Could not import PyDesktop Test framework.")
+    print("Make sure the 'pydesktop_test' directory is in the same directory as this script.")
+    sys.exit(1)
+
+def check_environment():
+    """Check if the necessary dependencies are installed."""
+    # Check for Python version
+    if sys.version_info < (3, 6):
+        print("Error: Python 3.6 or higher is required.")
+        sys.exit(1)
+    
+    # Check for pytest
+    try:
+        import pytest
+    except ImportError:
+        print("Error: pytest is not installed.")
+        print("Install it using: pip install pytest pytest-cov pytest-html")
+        sys.exit(1)
+    
+    # Check for tkinter (for testing GUI applications)
+    try:
+        import tkinter
+    except ImportError:
+        print("Warning: tkinter is not installed. GUI testing will not be available.")
+        print("To enable GUI testing, install tkinter for your platform.")
+        print("  - On Ubuntu/Debian: sudo apt-get install python3-tk")
+        print("  - On Fedora: sudo dnf install python3-tkinter")
+        print("  - On macOS: brew install python-tk")
+        print("  - On Windows: tkinter is included with Python")
+    
+    return True
+
+if __name__ == "__main__":
+    # Check if we have the necessary dependencies
+    if check_environment():
+        # Delegate to the CLI module
+        main_cli()
