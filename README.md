@@ -184,6 +184,10 @@ desktop-test dashboard --data-dir ./my-test-reports
 - **Screenshots**: Visual display of captured screenshots
 - **Error Reports**: Detailed error information for failed tests
 - **Interactive**: Run tests directly from the dashboard interface
+- **Data Visualization**: Interactive charts and graphs for test results analysis
+- **Performance Metrics**: Visual representation of test execution times
+- **Pass Rate Visualization**: Doughnut charts showing test status distribution
+- **Real-time Updates**: Automatic updating of dashboard when new tests are run
 
 ### Programmatic Usage
 

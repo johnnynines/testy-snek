@@ -233,6 +233,11 @@ class Dashboard:
         .test-details {
             margin-top: 20px;
         }
+        .chart-container {
+            position: relative;
+            height: 250px;
+            margin-bottom: 20px;
+        }
         .screenshot-container {
             margin: 10px 0;
             border: 1px solid var(--bs-border-color);
@@ -506,6 +511,9 @@ class Dashboard:
                                                 <span class="badge bg-secondary">Skipped: ${skipped}</span>
                                                 ${errors > 0 ? `<span class="badge bg-warning">Errors: ${errors}</span>` : ''}
                                             </div>
+                                            <div class="chart-container mt-3">
+                                                <canvas id="summaryChart"></canvas>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -536,6 +544,22 @@ class Dashboard:
                         });
                         
                         html += `
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    // Add test duration chart section
+                    if (report.test_cases && report.test_cases.length > 0) {
+                        html += `
+                            <div class="card mb-4">
+                                <div class="card-header bg-info text-white">
+                                    Test Performance
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="durationChart"></canvas>
                                     </div>
                                 </div>
                             </div>
@@ -622,6 +646,98 @@ class Dashboard:
                     }
                     
                     detailsContainer.innerHTML = html;
+                    
+                    // Create summary chart
+                    if (total > 0) {
+                        const summaryCtx = document.getElementById('summaryChart').getContext('2d');
+                        new Chart(summaryCtx, {
+                            type: 'doughnut',
+                            data: {
+                                labels: ['Passed', 'Failed', 'Skipped'],
+                                datasets: [{
+                                    data: [passed, failed, skipped],
+                                    backgroundColor: [
+                                        'rgba(40, 167, 69, 0.8)',
+                                        'rgba(220, 53, 69, 0.8)',
+                                        'rgba(108, 117, 125, 0.8)'
+                                    ],
+                                    borderColor: 'transparent',
+                                    hoverOffset: 4
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: {
+                                        position: 'bottom',
+                                        labels: {
+                                            color: 'rgb(200, 200, 200)'
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    }
+                    
+                    // Create duration chart if we have enough test cases
+                    if (report.test_cases && report.test_cases.length > 0) {
+                        const durationCtx = document.getElementById('durationChart').getContext('2d');
+                        
+                        // Get data for duration chart (up to 10 tests)
+                        const testCasesToChart = report.test_cases.slice(0, 10);
+                        const testNames = testCasesToChart.map(test => test.name);
+                        const testDurations = testCasesToChart.map(test => test.duration);
+                        const testColors = testCasesToChart.map(test => {
+                            if (test.status === 'passed') return 'rgba(40, 167, 69, 0.8)';
+                            if (test.status === 'failed') return 'rgba(220, 53, 69, 0.8)';
+                            return 'rgba(108, 117, 125, 0.8)';
+                        });
+                        
+                        new Chart(durationCtx, {
+                            type: 'bar',
+                            data: {
+                                labels: testNames,
+                                datasets: [{
+                                    label: 'Duration (seconds)',
+                                    data: testDurations,
+                                    backgroundColor: testColors,
+                                    borderColor: 'transparent',
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    y: {
+                                        beginAtZero: true,
+                                        ticks: {
+                                            color: 'rgb(200, 200, 200)'
+                                        },
+                                        grid: {
+                                            color: 'rgba(200, 200, 200, 0.1)'
+                                        }
+                                    },
+                                    x: {
+                                        ticks: {
+                                            color: 'rgb(200, 200, 200)'
+                                        },
+                                        grid: {
+                                            color: 'rgba(200, 200, 200, 0.1)'
+                                        }
+                                    }
+                                },
+                                plugins: {
+                                    legend: {
+                                        labels: {
+                                            color: 'rgb(200, 200, 200)'
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    }
                 })
                 .catch(error => {
                     console.error('Error loading report details:', error);
@@ -691,6 +807,7 @@ class Dashboard:
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>
         """
