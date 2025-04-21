@@ -3,10 +3,10 @@ import os
 import sys
 
 # Add the parent directory to the path so we can import the module
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))))
 
 # Import the application class
-from demo_app import DemoApp
+from . import SimpleNoteApp
 import tkinter as tk
 
 # Import custom assertions for GUI testing
@@ -27,71 +27,71 @@ except ImportError:
     def assert_dialog_shown(*args, **kwargs): return None
 
 
-def test_demo_app_init(demo_app_instance):
-    """Test that DemoApp initializes correctly."""
+def test_simple_note_app_init(simple_note_app_instance):
+    """Test that SimpleNoteApp initializes correctly."""
     # Verify the instance was created
-    assert demo_app_instance is not None
-    assert isinstance(demo_app_instance, DemoApp)
+    assert simple_note_app_instance is not None
+    assert isinstance(simple_note_app_instance, SimpleNoteApp)
 
-def test_demo_app_title(demo_app_instance, main_window):
-    """Test that the DemoApp window has a title."""
+def test_simple_note_app_title(simple_note_app_instance, main_window):
+    """Test that the SimpleNoteApp window has a title."""
     # Get the window title
     title = main_window.title()
     # Verify it's not empty
     assert title is not None
     assert len(title) > 0
 
-def test_demo_app_clear_form(demo_app_instance):
-    """Test that the clear_form method exists."""
+def test_simple_note_app_configure_for_testing(simple_note_app_instance):
+    """Test that the configure_for_testing method exists."""
     # Verify the method exists
-    assert hasattr(demo_app_instance, 'clear_form')
-    assert callable(getattr(demo_app_instance, 'clear_form'))
+    assert hasattr(simple_note_app_instance, 'configure_for_testing')
+    assert callable(getattr(simple_note_app_instance, 'configure_for_testing'))
     # This is a placeholder test - to actually test the method,
     # you'd need to call it with appropriate arguments and verify the results
     # Example:
-    # result = demo_app_instance.clear_form()
+    # result = simple_note_app_instance.configure_for_testing()
     # assert result is not None
 
-def test_demo_app_confirm_exit(demo_app_instance):
+def test_simple_note_app_confirm_exit(simple_note_app_instance):
     """Test that the confirm_exit method exists."""
     # Verify the method exists
-    assert hasattr(demo_app_instance, 'confirm_exit')
-    assert callable(getattr(demo_app_instance, 'confirm_exit'))
+    assert hasattr(simple_note_app_instance, 'confirm_exit')
+    assert callable(getattr(simple_note_app_instance, 'confirm_exit'))
     # This is a placeholder test - to actually test the method,
     # you'd need to call it with appropriate arguments and verify the results
     # Example:
-    # result = demo_app_instance.confirm_exit()
+    # result = simple_note_app_instance.confirm_exit()
     # assert result is not None
 
-def test_demo_app_increment_counter(demo_app_instance):
-    """Test that the increment_counter method exists."""
+def test_simple_note_app_copy(simple_note_app_instance):
+    """Test that the copy method exists."""
     # Verify the method exists
-    assert hasattr(demo_app_instance, 'increment_counter')
-    assert callable(getattr(demo_app_instance, 'increment_counter'))
+    assert hasattr(simple_note_app_instance, 'copy')
+    assert callable(getattr(simple_note_app_instance, 'copy'))
     # This is a placeholder test - to actually test the method,
     # you'd need to call it with appropriate arguments and verify the results
     # Example:
-    # result = demo_app_instance.increment_counter()
+    # result = simple_note_app_instance.copy()
     # assert result is not None
 
-def test_demo_app_reset_counter(demo_app_instance):
-    """Test that the reset_counter method exists."""
+def test_simple_note_app_cut(simple_note_app_instance):
+    """Test that the cut method exists."""
     # Verify the method exists
-    assert hasattr(demo_app_instance, 'reset_counter')
-    assert callable(getattr(demo_app_instance, 'reset_counter'))
+    assert hasattr(simple_note_app_instance, 'cut')
+    assert callable(getattr(simple_note_app_instance, 'cut'))
     # This is a placeholder test - to actually test the method,
     # you'd need to call it with appropriate arguments and verify the results
     # Example:
-    # result = demo_app_instance.reset_counter()
+    # result = simple_note_app_instance.cut()
     # assert result is not None
 
-def test_demo_app_show_about(demo_app_instance):
-    """Test that the show_about method exists."""
+def test_simple_note_app_main_window(simple_note_app_instance):
+    """Test that the main_window method exists."""
     # Verify the method exists
-    assert hasattr(demo_app_instance, 'show_about')
-    assert callable(getattr(demo_app_instance, 'show_about'))
+    assert hasattr(simple_note_app_instance, 'main_window')
+    assert callable(getattr(simple_note_app_instance, 'main_window'))
     # This is a placeholder test - to actually test the method,
     # you'd need to call it with appropriate arguments and verify the results
     # Example:
-    # result = demo_app_instance.show_about()
+    # result = simple_note_app_instance.main_window()
     # assert result is not None

@@ -2,11 +2,32 @@ import pytest
 import os
 import sys
 import tkinter as tk
+from . import SimpleNoteApp
 
 # Add project root to Python path
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
+
+@pytest.fixture
+def simple_note_app_instance():
+    """Fixture to provide a test instance of SimpleNoteApp."""
+    app = SimpleNoteApp()
+    # Configure for testing
+    app.root.withdraw()  # Hide window during tests
+    # Set up event processing
+    def process_events():
+        app.root.update()
+    app.process_events = process_events
+    yield app
+    # Clean up
+    try:
+        if hasattr(app, 'shutdown'):
+            app.shutdown()
+        elif hasattr(app, 'close'):
+            app.close()
+    except:
+        pass
 
 @pytest.fixture
 def main_window(app_instance):

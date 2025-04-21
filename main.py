@@ -33,6 +33,7 @@ def index():
                             
                             <h2>Features</h2>
                             <ul class="list-group list-group-flush mb-4">
+                                <li class="list-group-item">Auto-Test Generation: Automatically generate tests for your Python desktop apps</li>
                                 <li class="list-group-item">Easy Test Creation: Simplifies writing tests for desktop applications</li>
                                 <li class="list-group-item">Custom Assertions: Built-in assertions for UI components and states</li>
                                 <li class="list-group-item">Enhanced Reporting: Rich console output and HTML reports</li>
@@ -48,7 +49,7 @@ def index():
                             <p>Install the package via pip:</p>
                             <pre class="bg-dark text-light p-3 rounded">pip install pydesktop-test</pre>
                             
-                            <h2>Example Usage</h2>
+                            <h2>Usage Example: Writing Tests Manually</h2>
                             <pre class="bg-dark text-light p-3 rounded">
 import pytest
 from myapp import MyTkinterApp  # Your application class
@@ -74,6 +75,22 @@ def test_button_click(app_instance):
     
     # Check that the counter was incremented
     assert int(counter_label["text"]) == initial_value + 1
+                            </pre>
+                            
+                            <h2>Auto-Test Generation</h2>
+                            <p>Generate tests automatically for your desktop application:</p>
+                            <pre class="bg-dark text-light p-3 rounded">
+# From the command line
+./desktop-test autogen /path/to/your/project
+
+# Generate tests for a single file
+./desktop-test autogen /path/to/your/app.py
+
+# Specify custom output directory
+./desktop-test autogen /path/to/your/project --output /path/to/output
+
+# Just analyze the project structure without generating tests
+./desktop-test autogen /path/to/your/project --analyze-only
                             </pre>
                         </div>
                         <div class="card-footer text-muted">
