@@ -1,0 +1,2 @@
+[console_scripts]
+pydesktop-test = pydesktop_test.cli:main_cli

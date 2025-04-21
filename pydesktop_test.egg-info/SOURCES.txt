@@ -1,0 +1,17 @@
+README.md
+pyproject.toml
+pydesktop_test/__init__.py
+pydesktop_test/assertions.py
+pydesktop_test/cli.py
+pydesktop_test/config.py
+pydesktop_test/conftest.py
+pydesktop_test/core.py
+pydesktop_test/fixtures.py
+pydesktop_test/reporting.py
+pydesktop_test/utils.py
+pydesktop_test.egg-info/PKG-INFO
+pydesktop_test.egg-info/SOURCES.txt
+pydesktop_test.egg-info/dependency_links.txt
+pydesktop_test.egg-info/entry_points.txt
+pydesktop_test.egg-info/requires.txt
+pydesktop_test.egg-info/top_level.txt

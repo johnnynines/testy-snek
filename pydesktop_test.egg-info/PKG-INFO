@@ -1,0 +1,156 @@
+Metadata-Version: 2.4
+Name: pydesktop-test
+Version: 0.1.0
+Summary: PyTest-based testing framework for Python desktop applications
+Author-email: Developer <developer@example.com>
+License: MIT
+Project-URL: Homepage, https://github.com/example/pydesktop-test
+Project-URL: Bug Tracker, https://github.com/example/pydesktop-test/issues
+Keywords: testing,pytest,desktop,gui,ui
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Topic :: Software Development :: Testing
+Classifier: Topic :: Software Development :: Testing :: Unit
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: flask>=3.0.3
+Requires-Dist: pillow>=10.4.0
+Requires-Dist: pytest>=6.0.0
+Requires-Dist: pytest-cov>=2.12.0
+Requires-Dist: pytest-html>=3.1.0
+Requires-Dist: pyyaml>=6.0.2
+Requires-Dist: rich>=10.0.0
+Requires-Dist: typer>=0.15.2
+Provides-Extra: dev
+Requires-Dist: black; extra == "dev"
+Requires-Dist: isort; extra == "dev"
+Requires-Dist: flake8; extra == "dev"
+Requires-Dist: mypy; extra == "dev"
+Requires-Dist: pytest-xdist; extra == "dev"
+Provides-Extra: cli
+Requires-Dist: typer>=0.4.0; extra == "cli"
+Provides-Extra: yaml
+Requires-Dist: pyyaml>=6.0; extra == "yaml"
+
+# PyDesktop Test
+
+A PyTest-based testing framework for Python desktop applications with enhanced reporting and developer experience.
+
+## Features
+
+- **Easy Test Creation**: Simplifies writing tests for desktop applications
+- **Custom Assertions**: Built-in assertions for UI components and states
+- **Enhanced Reporting**: Rich console output and HTML reports
+- **Configurable**: Flexible configuration for different testing environments
+- **Test Discovery**: Automatic test discovery across project directories
+- **Parallel Execution**: Run tests in parallel for faster results
+- **Code Coverage**: Integrated coverage reporting
+- **Framework Support**: Compatible with multiple GUI frameworks (Tkinter, PyQt, etc.)
+- **Screenshot Testing**: Capture screenshots for visual regression testing
+
+## Installation
+
+```bash
+pip install pydesktop-test
+```
+
+## Quick Start
+
+Here's a simple example of how to use PyDesktop Test with a Tkinter application:
+
+```python
+import pytest
+from myapp import MyTkinterApp  # Your application class
+
+# Mark the test with the application class
+@pytest.mark.app_class(MyTkinterApp)
+def test_app_window_title(app_instance, main_window):
+    """Test that the application window has the correct title."""
+    assert main_window.title() == "My Application"
+
+@pytest.mark.app_class(MyTkinterApp)
+def test_button_click(app_instance):
+    """Test that clicking a button updates the counter."""
+    # Get the button and counter label
+    button = app_instance.button
+    counter_label = app_instance.counter_label
+    
+    # Get initial counter value
+    initial_value = int(counter_label["text"])
+    
+    # Click the button
+    button.invoke()
+    
+    # Check that the counter was incremented
+    assert int(counter_label["text"]) == initial_value + 1
+```
+
+## Running Tests
+
+You can run tests using the included command-line tool:
+
+```bash
+# Run all tests in the current directory
+pydesktop-test run
+
+# Run tests with HTML reporting
+pydesktop-test run --html
+
+# Run tests in parallel
+pydesktop-test run --parallel
+```
+
+Or use pytest directly with the PyDesktop Test fixtures:
+
+```bash
+pytest tests/ --cov=myapp
+```
+
+## Custom Assertions
+
+PyDesktop Test provides specialized assertions for testing UI components:
+
+```python
+from pydesktop_test.assertions import (
+    assert_window_exists,
+    assert_control_exists,
+    assert_control_value,
+    assert_control_enabled,
+    assert_dialog_shown
+)
+
+def test_dialog_shown(app_instance):
+    # Click a button that shows a dialog
+    app_instance.show_dialog_button.invoke()
+    
+    # Assert that a dialog with the given title is shown
+    dialog = assert_dialog_shown(app_instance, "Confirmation Dialog")
+    
+    # Check dialog content
+    ok_button = assert_control_exists(dialog, "ok_button")
+    assert_control_enabled(ok_button)
+```
+
+## Configuration
+
+Create a `pydesktop_test.json` file in your project root to configure the framework:
+
+```json
+{
+    "test_dir": "tests",
+    "report_dir": "test_reports",
+    "coverage_dir": "coverage",
+    "screenshot_on_failure": true,
+    "parallel": true,
+    "max_workers": 4
+}
+```
+
+## Documentation
+
+For more detailed documentation and examples, visit the [documentation site](https://pydesktop-test.readthedocs.io/).

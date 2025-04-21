@@ -1,0 +1,69 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pydesktop-test"
+version = "0.1.0"
+description = "PyTest-based testing framework for Python desktop applications"
+readme = "README.md"
+authors = [
+    {name = "Developer", email = "developer@example.com"}
+]
+license = {text = "MIT"}
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Software Development :: Testing",
+    "Topic :: Software Development :: Testing :: Unit",
+]
+keywords = ["testing", "pytest", "desktop", "gui", "ui"]
+dependencies = [
+    "flask>=3.0.3",
+    "pillow>=10.4.0",
+    "pytest>=6.0.0",
+    "pytest-cov>=2.12.0",
+    "pytest-html>=3.1.0",
+    "pyyaml>=6.0.2",
+    "rich>=10.0.0",
+    "typer>=0.15.2",
+]
+requires-python = ">=3.8"
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "isort",
+    "flake8",
+    "mypy",
+    "pytest-xdist",
+]
+cli = [
+    "typer>=0.4.0",
+]
+yaml = [
+    "pyyaml>=6.0",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/example/pydesktop-test"
+"Bug Tracker" = "https://github.com/example/pydesktop-test/issues"
+
+[project.scripts]
+pydesktop-test = "pydesktop_test.cli:main_cli"
+
+[tool.setuptools]
+packages = ["pydesktop_test"]
+
+[tool.black]
+line-length = 100
+target-version = ["py38"]
+
+[tool.isort]
+profile = "black"
+line_length = 100
