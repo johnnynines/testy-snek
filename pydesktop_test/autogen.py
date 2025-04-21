@@ -1140,6 +1140,26 @@ def auto_generate_tests(project_path: str, output_dir: Optional[str] = None) -> 
     Returns:
         Dict mapping test file paths to content
     """
+    # Ensure project_path is an absolute path
+    project_path = os.path.abspath(project_path)
+    
+    # Handle case when project_path is a file
+    if os.path.isfile(project_path):
+        # Make sure output_dir exists and is a directory
+        if output_dir is None:
+            # Use the directory containing the file
+            output_dir = os.path.join(os.path.dirname(project_path), 'tests')
+    else:
+        # Default output directory is tests in the project directory
+        if output_dir is None:
+            output_dir = os.path.join(project_path, 'tests')
+    
+    # Ensure output_dir is an absolute path
+    output_dir = os.path.abspath(output_dir)
+    
+    # Create output directory if it doesn't exist
+    os.makedirs(output_dir, exist_ok=True)
+    
     logger.info(f"Analyzing project at {project_path}")
     analysis_results = analyze_project(project_path)
     
