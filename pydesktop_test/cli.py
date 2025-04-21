@@ -380,6 +380,30 @@ def _argparse_cli():
         if not success:
             sys.exit(1)
     
+    elif args.command == "dashboard":
+        # Launch the dashboard
+        print("Launching interactive dashboard...")
+        data_dir = args.data_dir
+        port = args.port
+        open_browser = not args.no_open
+        
+        print(f"Dashboard will run at: http://localhost:{port}")
+        print(f"Loading reports from: {data_dir}")
+        print("Press Ctrl+C to stop the dashboard")
+        
+        try:
+            dashboard = launch_dashboard(
+                port=port,
+                data_dir=data_dir,
+                open_browser=open_browser
+            )
+            
+            # Keep the process running until interrupted
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            print("\nDashboard stopped")
+    
     elif args.command == "list":
         # Default to current directory if no paths provided
         test_paths = args.test_paths or ["tests"]
