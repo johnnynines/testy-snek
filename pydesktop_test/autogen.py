@@ -86,6 +86,14 @@ class ProjectAnalyzer:
             List of paths to Python files
         """
         py_files = []
+        
+        # Handle the case when project_path is a single Python file
+        if os.path.isfile(self.project_path) and str(self.project_path).endswith('.py'):
+            py_files.append(Path(self.project_path))
+            logger.info(f"Found single Python file: {self.project_path}")
+            return py_files
+        
+        # Handle directory project
         for root, _, files in os.walk(self.project_path):
             # Skip test directories and virtual environments
             if ('test' in root.lower() or 
@@ -96,6 +104,8 @@ class ProjectAnalyzer:
             for file in files:
                 if file.endswith('.py'):
                     py_files.append(Path(root) / file)
+        
+        logger.info(f"Found {len(py_files)} Python files")
         return py_files
     
     def _analyze_file(self, file_path: Path) -> None:
@@ -105,8 +115,18 @@ class ProjectAnalyzer:
         Args:
             file_path: Path to the Python file
         """
-        rel_path = file_path.relative_to(self.project_path)
-        module_name = str(rel_path).replace('/', '.').replace('\\', '.').replace('.py', '')
+        # Handle the case when analyzing a single file
+        if os.path.isfile(self.project_path) and str(file_path) == self.project_path:
+            # Use the filename without extension as the module name
+            module_name = os.path.basename(file_path).replace('.py', '')
+        else:
+            # Calculate the relative path for files within a project directory
+            try:
+                rel_path = file_path.relative_to(self.project_path)
+                module_name = str(rel_path).replace('/', '.').replace('\\', '.').replace('.py', '')
+            except ValueError:
+                # Fallback for when relative_to fails
+                module_name = os.path.basename(file_path).replace('.py', '')
         
         try:
             with open(file_path, 'r', encoding='utf-8') as f:

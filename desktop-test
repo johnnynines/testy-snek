@@ -111,6 +111,10 @@ def handle_autogen(args):
         print(f"Error: Project path {project_path} does not exist.")
         return 1
     
+    # Handle case when project_path is a file
+    is_file = os.path.isfile(project_path)
+    project_dir = os.path.dirname(project_path) if is_file else project_path
+    
     print(f"Analyzing project: {project_path}")
     analysis_results = analyze_project(project_path)
     
@@ -130,7 +134,11 @@ def handle_autogen(args):
     if args.output:
         output_dir = os.path.abspath(args.output)
     else:
-        output_dir = os.path.join(project_path, 'tests')
+        # If analyzing a single file, create tests in the parent directory
+        if is_file:
+            output_dir = os.path.join(project_dir, 'tests')
+        else:
+            output_dir = os.path.join(project_path, 'tests')
     
     # Generate tests
     print(f"\nGenerating tests to: {output_dir}")
