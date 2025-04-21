@@ -72,11 +72,11 @@ def test_config_set_get():
         "--cov=pydesktop_test",
         "--cov-report=html:example_coverage",
         "--cov-report=term",
-        "--dashboard",  # Enable the dashboard plugin
-        f"--report-dir={report_dir}",  # Set the report directory
+        # We'll enable the dashboard later via our plugin system
         test_file  # Our test file
     ]
     
+    # Run with pytest
     result = pytest.main(args)
     
     # Clean up temporary test file
@@ -91,18 +91,19 @@ def test_config_set_get():
     # Launch the dashboard if requested
     if launch_dashboard:
         try:
-            from pydesktop_test.dashboard import launch_dashboard
+            from pydesktop_test.dashboard import Dashboard
             print("\nLaunching interactive dashboard...")
-            dashboard = launch_dashboard(data_dir=report_dir)
+            dashboard = Dashboard(data_dir=report_dir)
             
-            # Keep the script running while the dashboard is active
+            print(f"Dashboard will be available at: http://localhost:{dashboard.port}")
+            print(f"Loading reports from: {dashboard.data_dir}")
+            
             try:
-                print("Dashboard is now running. Press Ctrl+C to exit.")
-                while True:
-                    import time
-                    time.sleep(1)
+                dashboard.start()  # This will block until stopped with Ctrl+C
             except KeyboardInterrupt:
                 print("\nDashboard stopped.")
+            except Exception as e:
+                print(f"\nError running dashboard: {e}")
         except ImportError as e:
             print(f"Error launching dashboard: {e}")
             print("Make sure Flask is installed: pip install flask")
