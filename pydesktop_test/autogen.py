@@ -368,6 +368,12 @@ class ProjectAnalyzer:
         app_name_patterns = ['App', 'Application', 'MainWindow', 'Window', 'GUI', 'Interface']
         
         for class_path, class_info in self.classes.items():
+            # For single-file projects with one class, mark it as the app class
+            if len(self.classes) == 1:
+                class_info['is_app_class'] = True
+                class_info['is_gui_class'] = True  # Assume it's a GUI class if it's the only one
+                continue
+                
             # Check if it's a GUI class
             if class_info.get('is_gui_class', False):
                 # Check if the name contains common app name patterns
@@ -375,9 +381,16 @@ class ProjectAnalyzer:
                     class_info['is_app_class'] = True
                 
                 # Check if it has typical app methods
-                app_methods = ['run', 'start', 'main', 'mainloop', 'exec', 'exec_', 'show']
+                app_methods = ['run', 'start', 'main', 'mainloop', 'exec', 'exec_', 'show', 'shutdown', 'close']
                 if any(method in class_info.get('methods', []) for method in app_methods):
                     class_info['is_app_class'] = True
+                    
+            # If it has a 'root' attribute, it's likely a Tkinter app
+            ui_elements = class_info.get('ui_elements', [])
+            for element in ui_elements:
+                if element.get('name') == 'root':
+                    class_info['is_app_class'] = True
+                    class_info['is_gui_class'] = True
 
 
 class TestGenerator:
@@ -408,10 +421,17 @@ class TestGenerator:
         if output_dir:
             output_path = Path(output_dir)
         else:
-            output_path = self.project_path / 'tests'
+            # Default to 'tests' directory in project root
+            output_path = Path(os.path.join(os.getcwd(), 'tests'))
         
         # Ensure output directory exists
-        output_path.mkdir(exist_ok=True, parents=True)
+        try:
+            output_path.mkdir(exist_ok=True, parents=True)
+        except Exception as e:
+            logger.error(f"Error creating output directory: {e}")
+            # Fallback to current directory + tests
+            output_path = Path(os.path.join(os.getcwd(), 'tests'))
+            output_path.mkdir(exist_ok=True, parents=True)
         
         # Generate test files
         test_files = {}
